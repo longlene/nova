@@ -90,7 +90,7 @@ init([]) ->
     case application:get_env(dev_mode) of
         {ok, true} ->
             ?INFO("Starting nova in developer mode..."),
-            application:ensure_all_started(sync);
+            sync:go();
         _ ->
             ?INFO("Starting nova in production mode..."),
             ok
