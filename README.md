@@ -10,19 +10,21 @@
 
 ## Getting started
 
-Start by adding the `rebar3_nova` plugin for Nova. This can be done by adding the plugin config to `~/.config/rebar3/rebar.config`
-
+*via plugin*
+Add rebar3_nova to ~/.config/rebar3/rebar.config
 ```erlang
-{plugins, [
-           {rebar3_nova, {git, "https://github.com/novaframework/rebar3_nova.git"}}
-          ]}.
+{project_plugins, [rebar3_nova]}
 ```
+
 
 After this is done use `rebar3` to generate a new project with Nova.
 
 ```bash
 rebar3 new nova my_first_nova
 ```
+
+
+
 
 ## Supported Erlang versions
 
