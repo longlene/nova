@@ -166,10 +166,23 @@ start_cowboy(Configuration) ->
     case maps:get(use_ssl, Configuration, false) of
         false ->
             Port = maps:get(port, Configuration, ?NOVA_STD_PORT),
+            %% Extra top-level ranch opts (max_connections, num_acceptors,
+            %% ...) - same passthrough shape the ssl_options branch below
+            %% already has, just applied to the plain-HTTP listener too.
+            %% Without this, cowboy:start_clear/3 has no way to receive
+            %% anything but port/ip and silently falls back to ranch's own
+            %% defaults (max_connections=1024, num_acceptors=10). Must be
+            %% a *map* with port/ip nested under socket_opts, not a flat
+            %% proplist - ranch:normalize_opts/1 only recognizes
+            %% max_connections/num_acceptors/etc as top-level ranch opts
+            %% when TransOpts is already a map (a bare list is legacy
+            %% shorthand for "this whole thing is socket_opts", which is
+            %% what the original [{port,Port},{ip,Host}] list relied on).
+            TransportOptions = maps:get(transport_options, Configuration, #{}),
+            TransOpts = TransportOptions#{socket_opts => [{port, Port}, {ip, Host}]},
             case cowboy:start_clear(
                    ?NOVA_LISTENER,
-                   [{port, Port},
-                    {ip, Host}],
+                   TransOpts,
                    CowboyOptions2) of
                 {ok, _Pid} ->
                     {ok, BootstrapApp, Host, Port};
