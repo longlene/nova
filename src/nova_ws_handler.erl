@@ -31,10 +31,15 @@ init(Req = #{method := _Method, plugins := Plugins}, State = #{module := Module}
     upgrade_ws(Module, Req, State0, ControllerData2).
 
 
+%% `init/1' may also return `{ok, ControllerData, Opts}' to pass
+%% cowboy_websocket options for this connection - `compress => true' for
+%% permessage-deflate, `idle_timeout', `max_frame_size' and so on.
 upgrade_ws(Module, Req, State, ControllerData) ->
     case Module:init(ControllerData) of
         {ok, NewControllerData} ->
             {cowboy_websocket, Req, State#{controller_data => NewControllerData}};
+        {ok, NewControllerData, Opts} when is_map(Opts) ->
+            {cowboy_websocket, Req, State#{controller_data => NewControllerData}, Opts};
         Error ->
             ?LOG_ERROR(#{msg => <<"Websocket handler returned unknown result">>, handler => Module, returned => Error}),
             nova_router:render_status_page(500, Req)

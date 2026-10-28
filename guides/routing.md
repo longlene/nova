@@ -86,6 +86,15 @@ As you saw in the initial example in the [Basic components](#basic-components) s
 >
 > One needs to define `protocol => ws` in the options-map in order to enable websocket communications.
 
+The controller's `init/1` returns `{ok, ControllerData}`, or
+`{ok, ControllerData, Opts}` to set [cowboy_websocket options](https://ninenines.eu/docs/en/cowboy/2.13/manual/cowboy_websocket/)
+for the connection, for example permessage-deflate compression:
+
+```erlang
+init(ControllerData) ->
+    {ok, ControllerData, #{compress => true}}.
+```
+
 ### Native cowboy handlers ###
 
 ```

@@ -52,6 +52,17 @@ init_successful_upgrade_test_() ->
         ?assertEqual(test_ws_mod, maps:get(mod, State1))
     end}.
 
+init_with_websocket_options_test_() ->
+    {setup, ?SETUP, ?CLEANUP, fun() ->
+        meck:expect(test_ws_mod, init, fun(CD) -> {ok, CD, #{compress => true}} end),
+        Req = make_req(),
+        State = make_state(),
+        Result = nova_ws_handler:init(Req, State),
+        ?assertMatch({cowboy_websocket, _, _, #{compress := true}}, Result),
+        {cowboy_websocket, _Req1, State1, _Opts} = Result,
+        ?assertEqual(test_ws_mod, maps:get(mod, State1))
+    end}.
+
 init_injects_req_into_controller_data_test_() ->
     {setup, ?SETUP, ?CLEANUP, fun() ->
         Req = make_req(),
